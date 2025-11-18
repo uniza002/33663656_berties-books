@@ -1,15 +1,92 @@
+// Configuring bcrypt
+const bcrypt = require('bcrypt')
+const saltRounds = 10
+
 // Create a new router
 const express = require("express")
 const router = express.Router()
 
+// Print Register page
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
 })
 
+// Register a user by saving their details to the database
 router.post('/registered', function (req, res, next) {
-    // saving data in database
-    res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
-}); 
+    const plainPassword = req.body.password
+
+    // Encrypt the password and store the data in the database
+    bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
+    
+    // Store data into variables
+    let sqlquery = "INSERT INTO users (username, firstname, lastname, email, hashedPassword) VALUES (?,?,?,?,?)"
+    let newrecord = [req.body.username, req.body.first, req.body.last, req.body.email, hashedPassword]
+
+    // Add the user info to the database and print the result to the page
+    db.query(sqlquery, newrecord, (err, result) => {
+        if (err) {
+            next(err)
+        }
+        else
+            result = 'Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email + '</p>'
+            result += 'Your password is: '+ req.body.password +' and your hashed password is: '+ hashedPassword
+            res.send(result)
+        })
+    })
+})
+
+// List users page
+router.get('/list', function (req, res, next) {
+    let sqlquery = "SELECT username, firstname, lastname, email FROM users;"; // query database to get all the books
+    // execute sql query
+    db.query(sqlquery, (err, result) => {
+        if (err) {
+            next(err)
+        }
+        res.render("userlist.ejs", {users:result})
+        });
+})
+
+// Login page
+router.get('/login', function (req, res, next) {
+    res.render('login.ejs')
+})
+
+// Logged in route
+router.post('/loggedin', function (req, res, next) {
+    let loginuser = req.body.username
+    let sqlquery = "SELECT hashedPassword FROM users WHERE username = ?;"
+
+    db.query(sqlquery, [loginuser], (err, result) => {
+        if (err) {
+            next(err); 
+        }
+        
+        // Don't attempt to log in unless the user types a valid username in
+        if (result.length === 0) {
+            return res.send('You must enter a username.'); 
+        }
+
+        // Grab the hashed password value from the databse
+        const hashedPassword = result[0].hashedPassword;
+        
+        // Compare the hash value of the inputted password to the hashed value stored in the DB and then attempt to log in
+        bcrypt.compare(req.body.password, hashedPassword, function(err, result) {
+            if (err) {
+                next(err)
+            } else if (result == true) {
+                res.send('Logged in')
+            } else {
+                res.send('Incorrect login details. Try again.')
+            }
+        })
+    });
+})
+
+
 
 // Export the router object so index.js can access it
 module.exports = router
+
+
+  

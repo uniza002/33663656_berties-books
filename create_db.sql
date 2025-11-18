@@ -4,12 +4,24 @@
 CREATE DATABASE IF NOT EXISTS berties_books;
 USE berties_books;
 
-# Create the tables
+# Create books tables
 CREATE TABLE IF NOT EXISTS books (
     id     INT AUTO_INCREMENT,
     name   VARCHAR(50),
     price  DECIMAL(5, 2),
     PRIMARY KEY(id));
+
+# Create users table
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT,
+    username VARCHAR(16),
+    firstname VARCHAR(20),
+    lastname VARCHAR(20),
+    email VARCHAR(254),
+    hashedPassword VARCHAR(256),
+    PRIMARY KEY(id));
+
     
 # Create the application user
 CREATE USER IF NOT EXISTS 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop'; 
