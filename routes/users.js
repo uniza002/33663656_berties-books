@@ -6,6 +6,15 @@ const saltRounds = 10
 const express = require("express")
 const router = express.Router()
 
+// Redirect logins
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+      res.redirect('./login') // redirect to the login page
+    } else { 
+        next(); // move to the next middleware function
+    } 
+}
+
 // Print Register page
 router.get('/register', function (req, res, next) {
     res.render('register.ejs')
@@ -36,7 +45,7 @@ router.post('/registered', function (req, res, next) {
 })
 
 // List users page
-router.get('/list', function (req, res, next) {
+router.get('/list', redirectLogin, function (req, res, next) {
     let sqlquery = "SELECT username, firstname, lastname, email FROM users;"; // query database to get all the books
     // execute sql query
     db.query(sqlquery, (err, result) => {
@@ -75,7 +84,8 @@ router.post('/loggedin', function (req, res, next) {
             if (err) {
                 next(err)
             } else if (result == true) {
-                res.send('Logged in')
+                req.session.userId = req.body.username;
+                res.send('Logged in');
             } else {
                 res.send('Incorrect login details. Try again.')
             }

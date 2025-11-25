@@ -2,6 +2,15 @@
 const express = require("express")
 const router = express.Router()
 
+// Redirect logins
+const redirectLogin = (req, res, next) => {
+    if (!req.session.userId) {
+      res.send('You are not logged in. <a href='+'./'+'>Home</a>') // Tell the user if they aren't logged in
+    } else { 
+        next(); // move to the next middleware function
+    } 
+}
+
 // Handle our routes
 router.get('/',function(req, res, next){
     res.render('index.ejs')
@@ -12,8 +21,21 @@ router.get('/about',function(req, res, next){
 });
 
 router.get('/books/addbook',function(req, res, next){
-    res.render('addbook.ejs')
+    if (!req.session.userId) {
+        res.redirect('/users/login') // redirect to the login page
+    } else { 
+        res.render('addbook.ejs'); // move to the next middleware function
+    }     
 });
+
+router.get('/logout', redirectLogin, (req,res) => {
+    req.session.destroy(err => {
+    if (err) {
+        return res.redirect('./')
+    }
+    res.send('You are now logged out. <a href='+'./'+'>Home</a>');
+    })
+})
 
 // Export the router object so index.js can access it
 module.exports = router
