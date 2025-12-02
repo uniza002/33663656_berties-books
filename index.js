@@ -1,11 +1,13 @@
 // Import express and ejs
 var express = require ('express')
 var ejs = require('ejs')
+const request = require('request')
 const path = require('path')
 var mysql = require('mysql2')
 var session = require('express-session')
 const expressSanitizer = require('express-sanitizer');
 require('dotenv').config()
+
 
 // Create the express application object
 const app = express()
@@ -61,5 +63,9 @@ app.use('/users', usersRoutes)
 const booksRoutes = require('./routes/books')
 app.use('/books', booksRoutes)
 
-// Start the web app listening
+// Load the route handlers for /weather
+const weatherRoutes = require('./routes/weather')
+app.use('/weather', weatherRoutes)
+
+// Start the web app, listening on the specified port
 app.listen(port, () => console.log(`Bertie's Books server now listening on port ${port}`))
