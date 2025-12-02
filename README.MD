@@ -26,3 +26,13 @@ Validation added to the first and last name fields to ensure they're a minimum o
 ## Sanitisation
 
 Sanitisation has been added to the username, name, and emails fields on the register page to prevent a XSS attack. Since the password is hashed and salted, it's not necessary to sanitise this input as it should simply be stored directly into the database without being displayed to the user. 
+
+## API
+
+This website features an API for searching through our database. 
+
+Parameters:
+- `search`: Book name
+- `minprice`: The minimum price for a book
+- `maxprice`: The maximum price for a book
+- `sort`: Sort the returned books - sorting can be either 'name' or 'price'
